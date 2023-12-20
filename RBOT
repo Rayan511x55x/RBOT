@@ -10,16 +10,19 @@ local PushTool = nil
 local BrokenVip = {
 	292691273,
         1259686185,
+        3567168525,
 }
 --Tier 2 List
 local BrokenPremium = {
 	292691273,
         1259686185,
+        3567168525,
 }
 
 local BrokenStaff = {
 	292691273,
         1259686185,
+        3567168525,
 }
 
 -- ASSETS
