@@ -47,11 +47,11 @@
     <script>
         const API_URL = "https://api.tracker.gg/api/v2/rocket-league/standard/profile/epic/mk_cio";
         const API_KEY = "6c469271-5b34-40cb-9992-82012cc117f0";
-        const CORS_PROXY = "https://cors-anywhere.herokuapp.com/";
+        const CORS_PROXY = "https://cors-proxy.htmldriven.com/?url="; // New CORS Proxy
 
         async function fetchMMR() {
             try {
-                const response = await fetch(CORS_PROXY + API_URL, {
+                const response = await fetch(CORS_PROXY + encodeURIComponent(API_URL), {
                     method: 'GET',
                     headers: {
                         "TRN-Api-Key": API_KEY,
