@@ -7,29 +7,37 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: white;
-            color: #333;
+            background-color: #222;
+            color: white;
             text-align: center;
-            padding: 20px;
+            margin: 0;
+            padding: 0;
         }
-        .rank {
-            font-size: 1.5em;
-            margin: 10px 0;
+        h1 {
+            margin-top: 50px;
         }
-        .rank img {
-            vertical-align: middle;
-            margin-right: 10px;
+        .mmr-display {
+            margin-top: 20px;
         }
         .loading {
-            font-size: 1.2em;
-            color: #888;
+            font-size: 18px;
+        }
+        .rank {
+            margin: 10px 0;
+            font-size: 20px;
+        }
+        .rank span {
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <h1>Rocket League MMR Tracker for mk_cio</h1>
-    <div id="loading" class="loading">Loading MMR...</div>
-    <div id="mmr-container">
+
+    <h1>Rocket League MMR Tracker</h1>
+
+    <div id="loading" class="loading">Loading MMR data...</div>
+
+    <div id="mmr-display" class="mmr-display" style="display: none;">
         <div class="rank" id="rank-1v1"></div>
         <div class="rank" id="rank-2v2"></div>
         <div class="rank" id="rank-3v3"></div>
@@ -37,13 +45,13 @@
     </div>
 
     <script>
-        const CORS_PROXY = "https://cors-anywhere.herokuapp.com/";
         const API_URL = "https://api.tracker.gg/api/v2/rocket-league/standard/profile/epic/mk_cio";
         const API_KEY = "6c469271-5b34-40cb-9992-82012cc117f0";
+        const CORS_PROXY = "https://api.allorigins.win/raw?url=" + encodeURIComponent(API_URL);
 
         async function fetchMMR() {
             try {
-                const response = await fetch(CORS_PROXY + API_URL, {
+                const response = await fetch(CORS_PROXY, {
                     headers: {
                         "TRN-Api-Key": API_KEY,
                     },
@@ -56,7 +64,11 @@
                 const data = await response.json();
                 const mmrData = data.data.segments;
 
+                // Hide the loading message and display MMR data
                 document.getElementById("loading").style.display = "none";
+                document.getElementById("mmr-display").style.display = "block";
+
+                // Display ranks for different modes
                 displayRank("1v1", mmrData[0]);
                 displayRank("2v2", mmrData[1]);
                 displayRank("3v3", mmrData[2]);
@@ -67,21 +79,16 @@
             }
         }
 
-        function displayRank(playlistName, rankData) {
-            const rankElement = document.getElementById(`rank-${playlistName.toLowerCase()}`);
-            const rank = rankData.stats.peakRating;
-
-            const rankName = rank.metadata.name;
-            const rankValue = rank.value;
-            const rankIcon = rank.metadata.iconUrl;
-
-            rankElement.innerHTML = `
-                <img src="${rankIcon}" alt="${rankName}" width="30" height="30">
-                ${playlistName}: ${rankName} ${rankValue}
-            `;
+        function displayRank(mode, data) {
+            if (data && data.stats) {
+                const rankText = `${mode.toUpperCase()}: ${data.stats.rank.tier} ${data.stats.rank.name} - MMR: ${data.stats.rating}`;
+                document.getElementById(`rank-${mode}`).innerText = rankText;
+            }
         }
 
+        // Fetch MMR data when the page loads
         fetchMMR();
     </script>
+
 </body>
 </html>
