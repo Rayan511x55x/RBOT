@@ -4,15 +4,73 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rocket League MMR Tracker</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background-color: white;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        #ranks {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Rocket League MMR Tracker</h1>
-        <div id="ranks">
-            <p>Loading MMR...</p>
-        </div>
-    </div>
-    <script src="script.js"></script>
+
+    <h1>Rocket League MMR Tracker</h1>
+    <div id="ranks">Loading MMR...</div>
+
+    <script>
+        async function fetchMMR() {
+            const API_KEY = "6c469271-5b34-40cb-9992-82012cc117f0"; 
+            const PLAYER_ID = "mk_cio";
+            const API_URL = `https://api.tracker.gg/api/v2/rocket-league/standard/profile/epic/${PLAYER_ID}`;
+
+            try {
+                const response = await fetch(API_URL, {
+                    headers: { "TRN-Api-Key": API_KEY },
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+                const data = await response.json();
+                const segments = data.data.segments;
+
+                // Extract MMR for each rank
+                const ranks = {
+                    "1v1": getMMR(segments, "Ranked Duel 1v1"),
+                    "2v2": getMMR(segments, "Ranked Doubles 2v2"),
+                    "3v3": getMMR(segments, "Ranked Standard 3v3"),
+                    "Tournament": getMMR(segments, "Tournament Matches"),
+                };
+
+                // Display ranks on the page
+                document.getElementById("ranks").innerHTML = `
+                    <p>1v1: ${ranks["1v1"]}</p>
+                    <p>2v2: ${ranks["2v2"]}</p>
+                    <p>3v3: ${ranks["3v3"]}</p>
+                    <p>Tournament: ${ranks["Tournament"]}</p>
+                `;
+
+            } catch (error) {
+                console.error("Failed to fetch MMR:", error);
+                document.getElementById("ranks").innerHTML = "<p>Failed to load MMR.</p>";
+            }
+        }
+
+        // Helper function to get MMR by mode name
+        function getMMR(segments, modeName) {
+            const mode = segments.find(segment => segment.metadata.name === modeName);
+            return mode ? mode.stats.peakRating.displayValue : "N/A";
+        }
+
+        // Run function on page load
+        fetchMMR();
+    </script>
+
 </body>
 </html>
